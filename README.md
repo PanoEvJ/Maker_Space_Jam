@@ -3,7 +3,11 @@
 #### _Your Enterpise AI CoPilot_
 
 ## Deployment
-Deployed in [HF_Spaces](https://docs.google.com/presentation/d/1Woi4hV1X1jJqn4inIzGo3EQJcV5syYW3SOV519LuGYU/edit#slide=id.g2426b2a0da4_0_95)
+Deployed in HuggingFace Spaces as [NBA_assist](https://docs.google.com/presentation/d/1Woi4hV1X1jJqn4inIzGo3EQJcV5syYW3SOV519LuGYU/edit#slide=id.g2426b2a0da4_0_95)
+
+## Presentation - Demo Day for AI MakerSpace
+
+[DemoDay_Presentation](https://docs.google.com/presentation/d/1Woi4hV1X1jJqn4inIzGo3EQJcV5syYW3SOV519LuGYU/edit#slide=id.g2426b2a0da4_0_95)
 
 ## Data
 
