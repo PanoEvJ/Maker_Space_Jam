@@ -37,7 +37,7 @@ def get_df_from_workbook(sheet_name,
     url = f'https://docs.google.com/spreadsheets/d/{workbook_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}'
     return pd.read_csv(url)
 
-docEmailSample = Document(
+docEmailSample1 = Document(
     text="Hey KD, let's grab dinner after our next game, Steph", 
     metadata={'from_to': 'Stephen Curry to Kevin Durant',}
 )
@@ -45,7 +45,30 @@ docEmailSample2 = Document(
     text="Yo Joker, you were a monster last year, can't wait to play against you in the opener! Draymond", 
     metadata={'from_to': 'Draymond Green to Nikola Jokic',}
 )
-docAdditionalSamples = [docEmailSample, docEmailSample2]
+docEmailSample3 = Document(
+    text="Hey LeBron, you ready for another showdown? Let's see if you can handle the Splash Bros again! 😜",
+    metadata={'from_to': 'Klay Thompson to LeBron James'}
+)
+docEmailSample4 = Document(
+    text="Yo Giannis, you sure you want to come to the Bay? We don't have any deer to hunt here! 😂",
+    metadata={'from_to': 'Draymond Green to Giannis Antetokounmpo'}
+)
+docEmailSample5 = Document(
+    text="Hey Luka, you're a beast on the court. Let's swap jerseys after our game and show some love! 💪",
+    metadata={'from_to': 'Andrew Wiggins to Luka Dončić'}
+)
+docEmailSample5 = Document(
+    text="Devin Booker, we could use your scoring in the Bay. Think about it, bro! 🏀",
+    metadata={'from_to': 'Klay Thompson to Devin Booker'}
+)
+docEmailSample6 = Document(
+    text="Tatum, you've got the skills. Let's team up and bring some championships to the Warriors! 💍",
+    metadata={'from_to': 'Draymond Green to Jayson Tatum'}
+)
+docAdditionalSamples = [docEmailSample1, docEmailSample2, docEmailSample3, 
+                        docEmailSample4, docEmailSample5, docEmailSample6]
+
+
 
 class AutoRetrieveModel(BaseModel):
     query: str = Field(..., description="natural language query string")
@@ -87,8 +110,35 @@ def auto_retrieve_fn(
     response = query_engine.query(query)
     return str(response)
 
+def auto_retrieve_fn_strategy(
+    query: str, filter_key_list: List[str], filter_value_list: List[str]
+):
+    """Auto retrieval function.
+
+    Performs auto-retrieval from a vector database, and then applies a set of filters.
+
+    """
+    query = query or "Query"
+    
+    # for i, (k, v) in enumerate(zip(filter_key_list, filter_value_list)):
+    #     if k == 'token_list':
+    #         if token not in v:
+    #             v = ''
+
+    exact_match_filters = [
+        ExactMatchFilter(key=k, value=v)
+        for k, v in zip(filter_key_list, filter_value_list)
+    ]
+    retriever = VectorIndexRetriever(
+        vector_index_strategy, filters=MetadataFilters(filters=exact_match_filters), top_k=top_k
+    )
+    query_engine = RetrieverQueryEngine.from_args(retriever)
+
+    response = query_engine.query(query)
+    return str(response)
+
 # loading CSV data
-sheet_names = ['Teams', 'Players', 'Schedule', 'Player_Stats']
+sheet_names = ['Teams', 'Players', 'Schedule', 'Player_Stats', 'GSW_Players_Salary']
 dict_of_dfs = {sheet: get_df_from_workbook(sheet) for sheet in sheet_names}
 
 engine = create_engine("sqlite+pysqlite:///:memory:")
@@ -127,26 +177,66 @@ vector_index.insert_nodes(docAdditionalSamples)
 # setting up metadata
 top_k = 3
 info_emails_players = VectorStoreInfo(
-    content_info="emails exchanged between NBA players",
+    content_info="Emails exchanged between NBA players.",
     metadata_info=[
         MetadataInfo(
             name="from_to",
             type="str",
+            # description="email sent to an NBA player by a Golden States Warriors player, one of  [Stephen Curry, Andrew Wiggins, 'Draymond Green', 'Klay Thompson'], to any other NBA player"
             description="""
-email sent by a player of the Golden State Warriors to any other NBA player, one of [
-Stephen Curry to any NBA player, 
-Klay Thompson to any NBA player, 
-Chris Paul to any NBA player, 
-Andrew Wiggins to any NBA player, 
-Draymond Green to any NBA player, 
-Gary Payton II to any NBA player, 
-Kevon Looney to any NBA player, 
-Jonathan Kuminga to any NBA player, 
-Moses Moody to any NBA player, 
-Brandin Podziemski to any NBA player, 
-Cory Joseph to any NBA player, 
-Dario Šarić to any NBA player]
-Access these emails only when you are one of the player that sent the email."""
+email sent from a Golden States Warriors player to another NBA player, one of 
+Stephen Curry to Kevin Durant,
+Draymond Green to Nikola Jokic,
+Klay Thompson to LeBron James,
+Draymond Green to Giannis Antetokounmpo,
+Andrew Wiggins to Luka Dončić,
+Klay Thompson to Devin Booker,
+Draymond Green to Jayson Tatum
+"""
+        ), 
+    ]
+)
+
+strategy1 = Document(
+    text="Against the Phoenix Suns, we'll focus on ball movement and three-point shooting. Our starting five will consist of Stephen Curry, Klay Thompson, Andrew Wiggins, Draymond Green, and James Wiseman. We'll exploit their defense with our perimeter shooting while Draymond Green handles the playmaking and defense in the paint.",
+    metadata={'opponent': 'Phoenix Suns'}
+)
+strategy2 = Document(
+    text="Facing the Lakers, we'll emphasize defensive intensity and fast-break opportunities. Our starting lineup will feature Stephen Curry, Klay Thompson, Andrew Wiggins, Draymond Green, and Kevon Looney. We need to limit LeBron's impact and push the pace on offense to tire their older roster.",
+    metadata={'opponent': 'Lakers'}
+)
+strategy3 = Document(
+    text="Against the Denver Nuggets, our strategy is to control the boards and exploit their interior defense. Starting with Stephen Curry, Klay Thompson, Andrew Wiggins, Draymond Green, and James Wiseman, we aim to dominate the paint on both ends. We'll also look for opportunities to run in transition.",
+    metadata={'opponent': 'Denver Nuggets'}
+)
+strategy4 = Document(
+    text="Facing the Milwaukee Bucks, we'll prioritize perimeter defense and transition play. Our starting five will consist of Stephen Curry, Klay Thompson, Andrew Wiggins, Draymond Green, and Kevon Looney. We must limit Giannis' drives to the basket and exploit their defense with quick ball movement.",
+    metadata={'opponent': 'Milwaukee Bucks'}
+)
+strategy5 = Document(
+    text="In the matchup against the Brooklyn Nets, we'll focus on high-scoring games and exploiting defensive weaknesses. Our starting lineup will include Stephen Curry, Klay Thompson, Andrew Wiggins, Draymond Green, and Kevon Looney. We'll aim to outshoot and outpace them in a high-octane offensive battle.",
+    metadata={'opponent': 'Brooklyn Nets'}
+)
+
+chroma_client_strategy = chromadb.Client()
+chroma_collection = chroma_client_strategy.create_collection("coach_data")
+vector_store_strategy = ChromaVectorStore(chroma_collection=chroma_collection)
+storage_context_strategy = StorageContext.from_defaults(vector_store=vector_store_strategy)
+vector_index_strategy = VectorStoreIndex([], storage_context=storage_context_strategy, service_context=service_context)
+
+vector_index_strategy.insert_nodes([strategy1, strategy2, strategy3, strategy4, strategy5])
+
+# setting up metadata
+top_k = 1
+info_strategy = VectorStoreInfo(
+    content_info="Game strategy by Steve Kerr for the Golden States Warriors against opponent NBA teams.",
+    metadata_info=[
+        MetadataInfo(
+            name="opponent",
+            type="str",
+            description="""
+Game strategy for Golden State Warriors against opponent NBA teams, one of [Phoenix Suns, Lakers, Nuggets, Milwaukee Buck, Brooklyn Nets].
+"""
         ), 
     ]
 )
@@ -162,18 +252,19 @@ def main():
     sql_nba_tool = QueryEngineTool.from_defaults(
         query_engine=sql_query_engine, # 
         name='sql_nba_tool', 
-        description=("""Useful for translating a natural language query into a SQL query over tables containing:
-                        1. teams, containing information related to all NBA teams
+        description=("""Do not use this tool for queries related to game strategy.
+                        Use this tool for translating a natural language query into a SQL query over tables containing:
+                        1. teams, containing historical information about NBA teams
                         2. players, containing information about the team that each player plays for
                         3. schedule, containing information related to the entire NBA game schedule
                         4. player_stats, containing information related to all NBA player stats
+                        5. GSW_players_salary, containing information related to the salary of Golden State Warriors players
                         """
         ),
     )
     
     description_emails = f"""\
-    Use this tool to look up information about emails exchanged betweed players of the Golden State Warriors and any other NBA player.
-    Use this tool only when you are the player that actually sent the email.
+    Use this tool to retrieve emails between NBA players.
     The vector database schema is given below:
     {info_emails_players.json()}
     """
@@ -184,9 +275,22 @@ def main():
         fn_schema=AutoRetrieveModel
     )
     
+    description_strategy = f"""\
+    Use this tool to look up information about the game strategy of Golden State Warriors against other NBA teams.
+    The vector database schema is given below:
+    {info_strategy.json()}
+    """
+    auto_retrieve_tool_strategy = FunctionTool.from_defaults(
+        fn=auto_retrieve_fn_strategy, 
+        name='auto_retrieve_tool_strategy',
+        description=description_strategy, 
+        fn_schema=AutoRetrieveModel
+    )
+    
     agent = OpenAIAgent.from_tools(
     # agent = ReActAgent.from_tools(
-        tools = [sql_nba_tool, 
+        tools = [auto_retrieve_tool_strategy,
+                 sql_nba_tool, 
                  auto_retrieve_tool_emails,
                 ], 
         llm=llm, 
