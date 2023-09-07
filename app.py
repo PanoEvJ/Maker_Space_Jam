@@ -145,7 +145,8 @@ Jonathan Kuminga to any NBA player,
 Moses Moody to any NBA player, 
 Brandin Podziemski to any NBA player, 
 Cory Joseph to any NBA player, 
-Dario Šarić to any NBA player]"""
+Dario Šarić to any NBA player]
+Access these emails only when you are one of the player that sent the email."""
         ), 
     ]
 )
@@ -172,6 +173,7 @@ def main():
     
     description_emails = f"""\
     Use this tool to look up information about emails exchanged betweed players of the Golden State Warriors and any other NBA player.
+    Use this tool only when you are the player that actually sent the email.
     The vector database schema is given below:
     {info_emails_players.json()}
     """
