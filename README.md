@@ -9,6 +9,8 @@ Deployed in HuggingFace Spaces: [NBA_assist](https://huggingface.co/spaces/PanoE
 
 [DemoDay_Presentation](https://docs.google.com/presentation/d/1Woi4hV1X1jJqn4inIzGo3EQJcV5syYW3SOV519LuGYU/edit#slide=id.g2426b2a0da4_0_95)
 
+[teck_stack_diagram_DrawIO](https://drive.google.com/file/d/1BWX0EBRtDxzyRPzlaAkhFlvRgy-EYwYu/view?usp=sharing)
+
 ## Data
 
 [Development draft](https://docs.google.com/document/d/1HXBrauJKEQokzq1KbNSa5Eyo885cdoOfTJX1YakJTk8/edit)
