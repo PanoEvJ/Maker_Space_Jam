@@ -3,7 +3,7 @@
 #### _Your Enterpise AI CoPilot_
 
 ## Deployment
-Deployed in HuggingFace Spaces as [NBA_assist](https://docs.google.com/presentation/d/1Woi4hV1X1jJqn4inIzGo3EQJcV5syYW3SOV519LuGYU/edit#slide=id.g2426b2a0da4_0_95](https://huggingface.co/spaces/PanoEvJ/NBA_Assist)
+Deployed in HuggingFace Spaces as [NBA_assist](https://huggingface.co/spaces/PanoEvJ/NBA_Assist)
 
 ## Presentation - Demo Day for AI MakerSpace
 
